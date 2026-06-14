@@ -113,10 +113,16 @@
     </div>
 
     <script>
-        const socket = io();
+const socket = io();
+        
+        // Recupera nome, squadra e codice stanza salvati dal login
         const nome = localStorage.getItem('nomeQuiz') || "Giocatore";
         const squadra = localStorage.getItem('squadraQuiz') || "blu";
+        const codiceStanza = localStorage.getItem('codiceStanzaQuiz') || ""; 
         
+        // COMUNICAZIONE INIZIALE: Entra nella stanza specifica appena carica la pagina
+        socket.emit('joinRoom', { password: codiceStanza, nome: nome, team: squadra });
+
         document.getElementById('info-nome').innerText = nome;
         const sfondo = document.getElementById('sfondo');
         const badge = document.getElementById('badge-squadra');
@@ -150,11 +156,13 @@
         const statoTesto = document.getElementById('stato-sistema');
         const luce = document.getElementById('luce');
 
+        // FUNZIONE MODIFICATA: Invia la pressione includendo la stanza corrente
         function prenota() {
             if (!puoPremere) return;
-            socket.emit('pressione_pulsante', { nome: nome, squadra: squadra });
+            socket.emit('pressione_pulsante', { password: codiceStanza, nome: nome, squadra: squadra });
         }
 
+        // RICEZIONE PRENOTAZIONE (Solo da utenti della tua stanza)
         socket.on('risultato_buzzer', (data) => {
             puoPremere = false;
             btn.className = "buzzer-bloccato";
@@ -173,12 +181,19 @@
             }
         });
 
+        // RICEZIONE RESET (Attivato dal tuo conduttore)
         socket.on('sistema_resettato', () => {
             puoPremere = true;
             btn.className = "";
             subTesto.innerText = "Tocca Qui!";
             statoTesto.className = "";
             statoTesto.innerHTML = `<span class="punti-luce punti-luce lampeggia"></span> Sistema Pronto`;
+        });
+
+        // NOTIFICA ERRORE (Se la stanza chiude o ci sono problemi)
+        socket.on('erroreStanza', (messaggio) => {
+            alert(messaggio);
+            window.location.href = "/"; // Rimanda alla pagina di login
         });
     </script>
 </body>

@@ -81,8 +81,8 @@
         .pallino { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
         .p-blu { background-color: #3b82f6; }
         .p-rossa { background-color: #ef4444; }
-        .btn-blu-attivo { border-color: #3b82f6; bg-color: rgba(59, 130, 246, 0.2); color: #93c5fd; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
-        .btn-rossa-attivo { border-color: #ef4444; bg-color: rgba(239, 68, 68, 0.2); color: #fca5a5; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
+        .btn-blu-attivo { border-color: #3b82f6; background-color: rgba(59, 130, 246, 0.2); color: #93c5fd; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+        .btn-rossa-attivo { border-color: #ef4444; background-color: rgba(239, 68, 68, 0.2); color: #fca5a5; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
         .btn-entra {
             width: 100%;
             background: linear-gradient(to right, #f59e0b, #d97706);
@@ -127,6 +127,10 @@
             <div class="subtitle">Scegli il tuo nome e la tua fazione</div>
         </div>
         <div>
+            <!-- CAMPO PASSWORD STANZA AGGIUNTO -->
+            <label class="label">Password della Stanza</label>
+            <input type="text" id="codiceStanza" placeholder="Es. 1234 o PIN del conduttore" class="input-text">
+
             <label class="label">Il tuo Nome</label>
             <input type="text" id="nome" placeholder="Es. Marco, Giulia..." class="input-text">
 
@@ -161,10 +165,17 @@
             }
         }
         function entraDalVivo() {
+            const stanza = document.getElementById('codiceStanza').value.trim();
             const nome = document.getElementById('nome').value.trim();
+            
+            if(!stanza) return alert("Inserisci la password della stanza per giocare!");
             if(!nome) return alert("Scegli un nome prima di entrare!");
+            
+            // Salva le informazioni inclusa la password della stanza
+            localStorage.setItem('codiceStanzaQuiz', stanza);
             localStorage.setItem('nomeQuiz', nome);
             localStorage.setItem('squadraQuiz', squadraSelezionata);
+            
             location.href = 'giocatore.html';
         }
     </script>
