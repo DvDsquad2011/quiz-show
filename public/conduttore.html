@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Regia Quiz - Conduttore</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            background-color: #020617;
+            color: #f8fafc;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 24px;
+            display: flex;
+            flex-col: column;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 90vh;
+        }
+        .header { text-align: center; margin-bottom: 10px; }
+        .live-badge {
+            background-color: rgba(220, 38, 38, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(220, 38, 38, 0.4);
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+        .punteggi-container {
+            display: grid;
+            grid-template-cols: repeat(2, minmax(0, 1fr));
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            width: 100%;
+            max-width: 500px;
+        }
+        .box-squadra {
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+        .box-blu {
+            background-color: rgba(30, 58, 138, 0.4);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .box-rossa {
+            background-color: rgba(153, 27, 27, 0.4);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .titolo-squadra { font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin: 0; }
+        .t-blu { color: #60a5fa; } .t-rossa { color: #f87171; }
+        .punti { font-size: 48px; font-weight: 900; margin: 8px 0; }
+        .btn-punti {
+            background-color: #1e293b;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 0 4px;
+        }
+        .btn-piu-blu { background-color: #2563eb; }
+        .btn-piu-rossa { background-color: #dc2626; }
+        .schermo-centrale {
+            width: 100%;
+            max-width: 600px;
+            background-color: rgba(30, 41, 59, 0.5);
+            border: 1px solid #334155;
+            border-radius: 24px;
+            padding: 32px;
+            margin: 24px 0;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .ricevitore-testo { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #64748b; margin-bottom: 16px; font-weight: bold;}
+        .schermo-risultato {
+            padding: 40px 16px;
+            border-radius: 16px;
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 1px solid #1e293b;
+            transition: all 0.3s;
+        }
+        .schermo-blu { border: 2px solid rgba(59, 130, 246, 0.5); background-color: rgba(30, 58, 138, 0.2); }
+        .schermo-rossa { border: 2px solid rgba(239, 68, 68, 0.5); background-color: rgba(153, 27, 27, 0.2); }
+        #nome-prenotato { font-size: 42px; font-weight: 900; color: #475569; text-transform: uppercase; }
+        .nome-blu { color: #3b82f6 !important; text-shadow: 0 0 20px rgba(59, 130, 246, 0.6); }
+        .nome-rossa { color: #ef4444 !important; text-shadow: 0 0 20px rgba(239, 68, 68, 0.6); }
+        #squadra-prenotata { font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #64748b; mt-3; margin-top: 12px; }
+        .sq-blu { color: #3b82f6; } .sq-rossa { color: #ef4444; }
+        .btn-reset {
+            width: 100%;
+            max-width: 400px;
+            background: linear-gradient(to right, #dc2626, #f43f5e);
+            color: white;
+            font-weight: 900;
+            font-size: 18px;
+            padding: 16px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 16px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.3);
+            transition: all 0.1s;
+        }
+        .btn-reset:active { transform: scale(0.98); }
+        .info-sblocco { font-size: 11px; color: #475569; margin-top: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="live-badge">● LIVE CONTROL PANEL</div>
+    </div>
+
+    <!-- Tabellone Punteggio Studio -->
+    <div class="punteggi-container">
+        <div class="box-squadra box-blu">
+            <h4 class="titolo-squadra t-blu">Team Blu</h4>
+            <div id="punti-blu" class="punti">0</div>
+            <div>
+                <button onclick="cambiaPunti('blu', -1)" class="btn-punti">-</button>
+                <button onclick="cambiaPunti('blu', 1)" class="btn-punti btn-piu-blwn btn-piu-blu">+</button>
+            </div>
+        </div>
+        <div class="box-squadra box-rossa">
+            <h4 class="titolo-squadra t-rossa">Team Rosso</h4>
+            <div id="punti-rossi" class="punti">0</div>
+            <div>
+                <button onclick="cambiaPunti('rossa', -1)" class="btn-punti">-</button>
+                <button onclick="cambiaPunti('rossa', 1)" class="btn-punti btn-piu-rossa">+</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schermo Neon Centrale Ricezione -->
+    <div class="schermo-centrale">
+        <div class="ricevitore-testo">Ricevitore Impulsi</div>
+        <div id="schermo-risultato" class="schermo-risultato">
+            <div id="nome-prenotato">IN ATTESA...</div>
+            <div id="squadra-prenotata">Nessun pulsante premuto</div>
+        </div>
+    </div>
+
+    <!-- Tasto Sblocco Master -->
+    <div style="width: 100%; text-align: center;">
+        <button onclick="resetta()" class="btn-reset">Sblocca Pulsanti (RESET)</button>
+        <div class="info-sblocco">I concorrenti potranno prenotarsi di nuovo</div>
+    </div>
+
+    <script>
+        const socket = io();
+        const displayNome = document.getElementById('nome-prenotato');
+        const displaySquadra = document.getElementById('squadra-prenotata');
+        const displaySchermo = document.getElementById('schermo-risultato');
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function suona(freq, tipo, durata) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = tipo;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + durata);
+        }
+
+        let punti = { blu: 0, rossa: 0 };
+        function cambiaPunti(squadra, valore) {
+            punti[squadra] = Math.max(0, punti[squadra] + valore);
+            document.getElementById(`punti-${squadra === 'blu' ? 'blu' : 'rossi'}`).innerText = punti[squadra];
+            suona(600, 'sine', 0.08);
+        }
+
+        socket.on('risultato_buzzer', (data) => {
+            const v = data.vincitore;
+            displayNome.innerText = v.nome;
+            suona(440, 'triangle', 0.35);
+            
+            if(v.squadra === 'blu') {
+                displayNome.className = "nome-blu";
+                displaySquadra.innerText = "TEAM BLU HA PRESO IL TEMPO";
+                displaySquadra.className = "sq-blu";
+                displaySchermo.className = "schermo-risultato schermo-blu";
+            } else {
+                displayNome.className = "nome-rossa";
+                displaySquadra.innerText = "TEAM ROSSO HA PRESO IL TEMPO";
+                displaySquadra.className = "sq-rossa";
+                displaySchermo.className = "schermo-risultato schermo-rossa";
+            }
+        });
+
+        function resetta() {
+            socket.emit('reset_conduttore');
+            suona(800, 'sine', 0.15);
+            displayNome.innerText = "IN ATTESA...";
+            displayNome.className = "";
+            displaySquadra.innerText = "Nessun pulsante premuto";
+            displaySquadra.className = "";
+            displaySchermo.className = "schermo-risultato";
+        }
+    </script>
+</body>
+</html>
