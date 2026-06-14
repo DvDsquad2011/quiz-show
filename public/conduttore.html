@@ -29,8 +29,6 @@
             display: inline-block;
             margin-bottom: 8px;
         }
-        
-        /* NUOVO PANNELLO DI CREAZIONE STANZA STILE KAHOOT */
         .pannello-attivazione {
             background-color: rgba(255, 255, 255, 0.06);
             backdrop-filter: blur(12px);
@@ -69,16 +67,13 @@
             font-size: 15px;
             cursor: pointer;
         }
-
-        /* STRUTTURA PRINCIPALE (Inizialmente nascosta) */
         .regia-main {
-            display: none; /* Diventa flex quando la stanza è attiva */
+            display: none; 
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
             width: 100%;
         }
-
         .punteggi-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -169,16 +164,13 @@
         <div id="visualizza-pin" style="font-size: 14px; color: #fbbf24; font-weight: bold; margin-top: 4px;"></div>
     </div>
 
-    <!-- BOX CREAZIONE STANZA (Mostrato all'inizio) -->
     <div id="setup-stanza" class="pannello-attivazione">
         <h3 class="titolo-attivazione">Crea la tua Arena</h3>
         <input type="text" id="passwordStanza" placeholder="Scegli password stanza (es. 1234)" class="input-stanza">
         <button onclick="attivaStanza()" class="btn-attiva-stanza">Attiva Regia</button>
     </div>
 
-    <!-- BLOCCO DI REGIA PRINCIPALE (Si attiva dopo aver impostato la password) -->
     <div id="regia-interfaccia" class="regia-main">
-        <!-- Tabellone Punteggio Studio -->
         <div class="punteggi-container">
             <div class="box-squadra box-blu">
                 <h4 class="titolo-squadra t-blu">Team Blu</h4>
@@ -198,7 +190,6 @@
             </div>
         </div>
 
-        <!-- Schermo Neon Centrale Ricezione -->
         <div class="schermo-centrale">
             <div class="ricevitore-testo">Ricevitore Impulsi</div>
             <div id="schermo-risultato" class="schermo-risultato">
@@ -207,7 +198,6 @@
             </div>
         </div>
 
-        <!-- Tasto Sblocco Master -->
         <div style="width: 100%; text-align: center;">
             <button onclick="resetta()" class="btn-reset">Sblocca Pulsanti (RESET)</button>
             <div class="info-sblocco">I concorrenti potranno prenotarsi di nuovo</div>
@@ -236,7 +226,6 @@
             osc.stop(audioCtx.currentTime + durata);
         }
 
-        // FUNZIONE NUOVA: Invia la richiesta di apertura stanza al server
         function attivaStanza() {
             const pwd = document.getElementById('passwordStanza').value.trim();
             if(!pwd) return alert("Inserisci una password valida per i tuoi amici!");
@@ -245,8 +234,16 @@
             socket.emit('createRoom', pwd);
         }
 
-        // Il server conferma che la stanza privata è pronta
         socket.on('stanzaCreataOK', (password) => {
+            document.getElementById('setup-stanza').style.display = 'none';
+            document.getElementById('regia-interfaccia').style.display = 'flex';
+            document.getElementById('visualizza-pin').innerText = `STANZA ATTIVA PIN: ${password.toUpperCase()}`;
+            suona(523.25, 'sine', 0.2); 
+        });
+        
+        let punti = { blu: 0, rossa: 0 };
+        function cambiaPunti(squadra, valore) {
+            punti[squadra] = Math.max(0, punti[squadra] + valore);
             let punti = { blu: 0, rossa: 0 };
         function cambiaPunti(squadra, valore) {
             punti[squadra] = Math.max(0, punti[squadra] + valore);
