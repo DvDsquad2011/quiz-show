@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Arena - Accesso</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            min-height: 95vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 16px;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 32px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 380px;
+            transition: all 0.3s;
+        }
+        .header { text-align: center; margin-bottom: 32px; }
+        .title {
+            font-size: 32px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0;
+            background: linear-gradient(to right, #fbbf24, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle { color: #cbd5e1; font-size: 14px; margin-top: 6px; }
+        .label {
+            display: block;
+            font-size: 11px;
+            font-weight: bold;
+            color: #fbbf24;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .input-text {
+            width: 100%;
+            box-sizing: border-box;
+            background-color: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 16px;
+            margin-bottom: 24px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .input-text:focus { border-color: #fbbf24; box-shadow: 0 0 10px rgba(251, 191, 36, 0.2); }
+        .grid-squadre { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+        .btn-sq {
+            background-color: rgba(30, 41, 59, 0.4);
+            border: 2px solid #334155;
+            border-radius: 12px;
+            color: #94a3b8;
+            padding: 12px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .pallino { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        .p-blu { background-color: #3b82f6; }
+        .p-rossa { background-color: #ef4444; }
+        .btn-blu-attivo { border-color: #3b82f6; bg-color: rgba(59, 130, 246, 0.2); color: #93c5fd; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+        .btn-rossa-attivo { border-color: #ef4444; bg-color: rgba(239, 68, 68, 0.2); color: #fca5a5; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
+        .btn-entra {
+            width: 100%;
+            background: linear-gradient(to right, #f59e0b, #d97706);
+            color: #0f172a;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 10px 15px -3px rgba(217, 119, 6, 0.3);
+            transition: all 0.1s;
+        }
+        .btn-entra:active { transform: scale(0.98); }
+        .divisore { display: flex; align-items: center; text-align: center; color: #475569; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin: 24px 0; }
+        .divisore::before, .divisore::after { content: ''; flex: 1; border-bottom: 1px solid #334155; }
+        .divisore:not(:empty)::before { margin-right: 16px; }
+        .divisore:not(:empty)::after { margin-left: 16px; }
+        .btn-cond {
+            width: 100%;
+            background-color: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-cond:hover { background-color: #334155; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Quiz Arena</h1>
+            <div class="subtitle">Scegli il tuo nome e la tua fazione</div>
+        </div>
+        <div>
+            <label class="label">Il tuo Nome</label>
+            <input type="text" id="nome" placeholder="Es. Marco, Giulia..." class="input-text">
+
+            <label class="label">La tua Squadra</label>
+            <div class="grid-squadre">
+                <button id="btn-blu" onclick="selezionaSquadra('blu')" class="btn-sq btn-blu-attivo">
+                    <span class="pallino p-blu"></span> Team Blu
+                </button>
+                <button id="btn-rossa" onclick="selezionaSquadra('rossa')" class="btn-sq">
+                    <span class="pallino p-rossa"></span> Team Rosso
+                </button>
+            </div>
+
+            <button onclick="entraDalVivo()" class="btn-entra">Scendi in Campo</button>
+        </div>
+        <div class="divisore">Oppure</div>
+        <button onclick="location.href='conduttore.html'" class="btn-cond">Accedi come Conduttore</button>
+    </div>
+
+    <script>
+        let squadraSelezionata = 'blu';
+        function selezionaSquadra(s) {
+            squadraSelezionata = s;
+            const b = document.getElementById('btn-blu');
+            const r = document.getElementById('btn-rossa');
+            if(s === 'blu') {
+                b.className = "btn-sq btn-blu-attivo";
+                r.className = "btn-sq";
+            } else {
+                b.className = "btn-sq";
+                r.className = "btn-sq btn-rossa-attivo";
+            }
+        }
+        function entraDalVivo() {
+            const nome = document.getElementById('nome').value.trim();
+            if(!nome) return alert("Scegli un nome prima di entrare!");
+            localStorage.setItem('nomeQuiz', nome);
+            localStorage.setItem('squadraQuiz', squadraSelezionata);
+            location.href = 'giocatore.html';
+        }
+    </script>
+</body>
+</html>
